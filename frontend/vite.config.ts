@@ -12,6 +12,16 @@ export default defineConfig({
     host: true,
     proxy: { '/api': apiTarget },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // ECharts is most of the bundle and changes rarely: give it its own long-cached chunk.
+        manualChunks: (id) =>
+          /node_modules[\\/](echarts|zrender)[\\/]/.test(id) ? 'echarts' : undefined,
+      },
+    },
+    chunkSizeWarningLimit: 700,
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
