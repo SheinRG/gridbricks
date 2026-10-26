@@ -52,3 +52,25 @@ Sources: [Elexon glossary: Wind Generation Forecast](https://www.elexon.co.uk/bs
 | `meta` | `key` | `value` (source, ingest time, range) |
 
 Timestamps are stored as ISO 8601 UTC strings. Rebuild with `python backend/scripts/ingest.py`.
+
+## Headline findings (default view: 09:50 cutoff, delivery 2 Jan to 1 Feb)
+
+| Metric | Value |
+|---|---|
+| Scored hours (n / expected) | 744 / 744 (100%) |
+| MAE | 1,996 MW (17.7% of mean actual 11,286 MW) |
+| RMSE | 2,499 MW |
+| Mean bias | **+1,728 MW** (forecasts above outturn) |
+| P10 / P50 / P90 error | -503 / +1,507 / **+4,184 MW** |
+| Worst over-forecast | +6,857 MW, 12 Jan 01:00 UTC |
+| Worst under-forecast | -3,967 MW, 8 Jan 19:00 UTC |
+
+MAE rises steadily with lead time: 1,685 MW at H=1h to 2,301 MW at H=48h.
+A 09:20 cutoff (EPEX gate closure) uses the 07:30 publish instead of 09:30 and is slightly worse (MAE 2,023 MW).
+
+**The large positive bias is a finding, not a bug.** Forecasts were above outturn in most hours.
+The most likely cause is curtailment: WINDFOR forecasts what the wind fleet could generate, while
+FUELHH meters what it did generate after the system operator turned wind down (constraints,
+which are frequent on windy days). We cannot confirm this without balancing data, which is out of
+scope, but it matters for the client: the forecast is a ceiling, and the shortfall buffer captures
+that systematic gap as well as weather error.
