@@ -6,10 +6,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.api.v1 import router as v1_router
 from app.config import Settings, get_settings
+from app.data_store import get_store
 from app.logging import configure_logging
 
 logger = logging.getLogger("app")
@@ -21,7 +23,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-        logger.info("startup")
+        # Load data at startup so the first request is not slow; /health reports failures.
+        try:
+            get_store()
+        except FileNotFoundError:
+            logger.exception("data not loaded at startup")
         yield
 
     app = FastAPI(
@@ -32,6 +38,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
 
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -47,6 +54,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         elapsed_ms = (time.perf_counter() - started) * 1000
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Response-Time"] = f"{elapsed_ms:.1f}ms"
+        # Historical data never changes, so successful data responses can be cached (CDN too).
+        path = request.url.path
+        if response.status_code == 200 and path.startswith("/api/v1/") and path != "/api/v1/health":
+            response.headers["Cache-Control"] = "public, max-age=3600, s-maxage=86400"
         logger.info(
             "request",
             extra={
