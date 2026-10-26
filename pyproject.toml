@@ -20,4 +20,5 @@ entrypoint = "api.index:app"
 [tool.vercel.fastapi.static]
 # Our request-logging middleware would otherwise keep the SPA inside the function.
 cdn = true
-exclude = true
+# Keep the (~1 MB) build in the function too, so the StaticFiles mount still works as a fallback.
+exclude = false
