@@ -47,3 +47,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t wind-forecast-monitor .
+      - name: Smoke test the image (API + SPA from one container)
+        run: |
+          docker run -d --name app -p 8000:8000 wind-forecast-monitor
+          for i in $(seq 1 30); do
+            curl -fs localhost:8000/api/v1/health && break
+            sleep 1
+          done
+          curl -fs localhost:8000/api/v1/health | grep -q '"data_loaded":true'
+          curl -fs localhost:8000/api/v1/metrics | grep -q shortfall_buffer_mw
+          curl -fs localhost:8000/ | grep -qi '<div id="root">'
+      - if: failure()
+        run: docker logs app
