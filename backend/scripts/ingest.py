@@ -14,9 +14,8 @@ import os
 import sqlite3
 import sys
 import tempfile
-from datetime import UTC, date, datetime, time, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import httpx
 import pandas as pd
@@ -31,10 +30,10 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BACKEND_DIR))
 
 from app.logging import configure_logging  # noqa: E402
+from app.selection import delivery_window  # noqa: E402
 from scripts.cleaning import CleaningReport, clean_actuals, clean_forecasts  # noqa: E402
 
 BASE_URL = "https://data.elexon.co.uk/bmrs/api/v1"
-LONDON = ZoneInfo("Europe/London")
 CHUNK = timedelta(days=7)  # a month in one call works but WINDFOR takes ~40s; weekly is polite
 MAX_CONCURRENCY = 4
 # Horizon mode looks back up to 48h before each target, plus slack for publish spacing.
@@ -96,13 +95,6 @@ def _datetime_chunks(start: datetime, end: datetime) -> list[tuple[datetime, dat
 
 def _iso(ts: datetime) -> str:
     return ts.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def delivery_window(start: date, end: date) -> tuple[datetime, datetime]:
-    """UK delivery days [start, end] -> first and last half-hour start, in UTC."""
-    first = datetime.combine(start, time(0), tzinfo=LONDON).astimezone(UTC)
-    after_last = datetime.combine(end + timedelta(days=1), time(0), tzinfo=LONDON)
-    return first, (after_last - timedelta(minutes=30)).astimezone(UTC)
 
 
 async def fetch_all(start: date, end: date) -> tuple[list[dict], list[dict]]:

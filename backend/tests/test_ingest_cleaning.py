@@ -96,14 +96,14 @@ class TestCleanForecasts:
 
 class TestDeliveryWindow:
     def test_gmt_day_maps_to_same_utc_day(self):
-        from scripts.ingest import delivery_window
+        from app.selection import delivery_window
 
         first, last = delivery_window(date(2026, 1, 2), date(2026, 1, 2))
         assert first == datetime(2026, 1, 2, 0, 0, tzinfo=UTC)
         assert last == datetime(2026, 1, 2, 23, 30, tzinfo=UTC)
 
     def test_bst_day_starts_at_23_utc_previous_day(self):
-        from scripts.ingest import delivery_window
+        from app.selection import delivery_window
 
         first, last = delivery_window(date(2026, 7, 1), date(2026, 7, 1))
         assert first == datetime(2026, 6, 30, 23, 0, tzinfo=UTC)

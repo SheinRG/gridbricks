@@ -9,12 +9,26 @@ forecast for that target with the latest publish_time <= cutoff. Only the cutoff
 Keeping one selection path means the no-look-ahead guarantee lives (and is tested) in one place.
 """
 
-from datetime import time
+from datetime import date, datetime, time, timedelta
 from enum import StrEnum
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
 DTYPE = "datetime64[ns, UTC]"
+
+
+def delivery_window(
+    start: date, end: date, tz: str = "Europe/London"
+) -> tuple[pd.Timestamp, pd.Timestamp]:
+    """UK delivery days [start, end] -> first and last half-hour start, in UTC.
+
+    Built from local midnights, so a BST day starts at 23:00 UTC the evening before.
+    """
+    zone = ZoneInfo(tz)
+    first = pd.Timestamp(datetime.combine(start, time(0), tzinfo=zone))
+    after_last = pd.Timestamp(datetime.combine(end + timedelta(days=1), time(0), tzinfo=zone))
+    return first.tz_convert("UTC"), (after_last - pd.Timedelta(minutes=30)).tz_convert("UTC")
 
 
 class Mode(StrEnum):
