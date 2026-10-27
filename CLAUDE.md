@@ -337,7 +337,7 @@ Must include:
 
 - [x] WINDFOR resolution, horizon, publish frequency (Phase 1): hourly, 8 publishes/day, ~59h ahead. See DATA_NOTES.md.
 - [x] Elexon stream endpoint range limits (Phase 1): a full month works in one call but WINDFOR takes ~40s, so chunk weekly.
-- [ ] Vercel Python function size with pandas + numpy stays under limit (Phase 5; fallback: Heroku container or slimmer runtime deps)
+- [ ] Vercel deploy verified on the live URL (bundle limit is now 500 MB, pandas + numpy fit comfortably)
 - [ ] Submission deadline: not stated in the brief or the email; ask the recruiter on Wellfound
 
 ---
@@ -351,3 +351,7 @@ Must include:
 5. **Phase 1 verifications:** auction gate-closure source for the 09:50 default, WINDFOR horizon covers all of D from the D-1 cutoff, FUELHH WIND and WINDFOR describe the same (transmission-metered) wind.
 6. **Optional, only if time allows:** "procure-to" line = forecast minus P90 shortfall buffer, explicitly labelled as an in-sample backtest.
 7. The challenge brief `.docx` is not committed (it is the client's document); it is gitignored.
+8. **Deviations made during the build** (all recorded in docs/DECISIONS.md or the README):
+   - Vercel deps live in a root `pyproject.toml` (zero-config FastAPI with `tool.vercel.entrypoint`), not a root `requirements.txt`. CI checks it matches `backend/requirements.txt`.
+   - Shortfall buffer = P90 of **all** errors (what "cover 90% of hours" means), not P90 of positive errors only (D5).
+   - React 19 (what the Vite template installs) instead of 18. Worst-misses table is a plain top 10, no dark mode (cut list).
