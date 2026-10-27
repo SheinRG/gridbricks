@@ -8,7 +8,7 @@ wind fleet generated, and turns the error into a number they can act on:
 Scope is the brief's: national wind only, Elexon BMRS `FUELHH` (actuals) and `WINDFOR` (forecasts),
 for purchase decisions made in January 2026.
 
-**Live demo:** _TODO: Vercel URL_
+**Live demo:** https://gridbricks-vert.vercel.app (API docs at [/docs](https://gridbricks-vert.vercel.app/docs))
 
 ![Dashboard screenshot](docs/screenshot.png)
 

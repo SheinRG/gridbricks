@@ -337,7 +337,7 @@ Must include:
 
 - [x] WINDFOR resolution, horizon, publish frequency (Phase 1): hourly, 8 publishes/day, ~59h ahead. See DATA_NOTES.md.
 - [x] Elexon stream endpoint range limits (Phase 1): a full month works in one call but WINDFOR takes ~40s, so chunk weekly.
-- [ ] Vercel deploy verified on the live URL (bundle limit is now 500 MB, pandas + numpy fit comfortably)
+- [x] Vercel deploy verified on the live URL: https://gridbricks-vert.vercel.app (all endpoints, 422s, /docs and the dashboard checked)
 - [ ] Submission deadline: not stated in the brief or the email; ask the recruiter on Wellfound
 
 ---
