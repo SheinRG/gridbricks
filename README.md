@@ -10,7 +10,7 @@ for purchase decisions made in January 2026.
 
 **Live demo:** _TODO: Vercel URL_
 
-<!-- TODO: add docs/screenshot.png from the live site, then: ![Dashboard screenshot](docs/screenshot.png) -->
+![Dashboard screenshot](docs/screenshot.png)
 
 ## Headline result
 
