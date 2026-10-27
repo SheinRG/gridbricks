@@ -63,9 +63,12 @@ Typical latency: under 50 ms uncached, ~2 ms cached. `/accuracy-by-horizon` runs
 
 ## Deployment
 
-- **Vercel:** `pyproject.toml` points `tool.vercel.entrypoint` at `api/index.py`, which imports the
-  FastAPI app. `vercel.json` builds the frontend first; the app mounts `frontend/dist` with
-  `StaticFiles`, and Vercel promotes it to the CDN. The SQLite file ships inside the function bundle.
+- **Vercel:** one project with two [services](https://vercel.com/docs/services) in `vercel.json`.
+  `frontend` is the Vite build, served from the CDN. `backend` is the FastAPI app
+  (`backend/app/main.py`) as one Python function, with the SQLite file in its bundle and
+  dependencies from `backend/pyproject.toml`. Top-level rewrites send `/api/*`, `/docs` and
+  `/openapi.json` to the backend and everything else to the frontend, so the browser calls the API
+  on the same origin: no CORS and no service-to-service calls.
 - **Docker:** a multi-stage `Dockerfile` builds the frontend with Node, then copies `dist` into a
   `python:3.12-slim` image that serves both on `$PORT`. CI builds the image and smoke tests it.
 - **Local dev:** `docker compose up` runs uvicorn with reload and the Vite dev server, which proxies

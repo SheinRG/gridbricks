@@ -92,7 +92,6 @@ Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ```
 .
-├── api/index.py               Vercel entrypoint; imports the FastAPI app
 ├── backend/
 │   ├── app/
 │   │   ├── main.py            App factory: middleware (request id, timing, gzip, cache headers), routes, SPA mount
@@ -111,7 +110,7 @@ Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
 │   ├── tests/                 pytest: selection, metrics, cleaning, API
 │   ├── requirements.txt       Runtime deps (Docker)
 │   ├── requirements-dev.txt   + ingest, test and lint deps
-│   └── pyproject.toml         ruff and pytest config
+│   └── pyproject.toml         Runtime deps for Vercel, ruff and pytest config
 ├── frontend/
 │   ├── src/api/               Typed API client and TanStack Query hooks
 │   ├── src/hooks/             URL-backed filter state
@@ -125,7 +124,7 @@ Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
 ├── scripts/check_deps_sync.py CI check: Vercel and Docker dependency lists match
 ├── Dockerfile                 Multi-stage production image
 ├── docker-compose.yml         Local development
-├── vercel.json, pyproject.toml   Vercel build and function config
+├── vercel.json                Vercel services (frontend, backend) and routing
 ├── CLAUDE.md                  The plan given to Claude Code (kept for transparency)
 └── .github/workflows/ci.yml   Lint, tests, builds, Docker smoke test
 ```
@@ -144,8 +143,9 @@ Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Deployment trade-offs
 
-Vercel hosts the demo: free HTTPS, CDN for the static app, and the API as one Python function with
-the 1.7 MB data file bundled. Cold starts take a couple of seconds (pandas import). The same code
+Vercel hosts the demo as one project with two services: the static app on the CDN, and the API as
+one Python function with the 1.7 MB data file bundled. `/api/*` routes to the API on the same
+domain, so there is no CORS. Cold starts take a couple of seconds (pandas import). The same code
 ships as a Docker image, so moving to Heroku, Fly or a VM is a `docker run` with `$PORT`, with no
 code changes. For a real product with live data we would run the container and a scheduled ingest
 instead.

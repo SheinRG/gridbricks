@@ -1,5 +1,5 @@
 # Runtime dependencies for the API. Kept lean for the Vercel bundle.
-# Must match [project].dependencies in /pyproject.toml (CI checks this).
+# Must match [project].dependencies in backend/pyproject.toml (CI checks this).
 fastapi==0.162.0
 pydantic==2.14.1
 pydantic-settings==2.16.1

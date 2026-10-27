@@ -352,6 +352,6 @@ Must include:
 6. **Optional, only if time allows:** "procure-to" line = forecast minus P90 shortfall buffer, explicitly labelled as an in-sample backtest.
 7. The challenge brief `.docx` is not committed (it is the client's document); it is gitignored.
 8. **Deviations made during the build** (all recorded in docs/DECISIONS.md or the README):
-   - Vercel deps live in a root `pyproject.toml` (zero-config FastAPI with `tool.vercel.entrypoint`), not a root `requirements.txt`. CI checks it matches `backend/requirements.txt`.
+   - Vercel deploys as two services (`vercel.json` `services`: Vite `frontend`, FastAPI `backend`), because the importer requires it for this repo layout. No `api/index.py` or root `requirements.txt`; the backend's deps come from `backend/pyproject.toml`, and CI checks it matches `backend/requirements.txt`.
    - Shortfall buffer = P90 of **all** errors (what "cover 90% of hours" means), not P90 of positive errors only (D5).
    - React 19 (what the Vite template installs) instead of 18. Worst-misses table is a plain top 10, no dark mode (cut list).
